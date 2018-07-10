@@ -355,6 +355,7 @@ neverallow {
     -appdomain
     with_asan(`-asan_extract')
     -dumpstate
+    -hal_audio
     -shell
     userdebug_or_eng(`-su')
     -webview_zygote
