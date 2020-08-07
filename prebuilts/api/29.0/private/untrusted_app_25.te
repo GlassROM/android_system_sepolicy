@@ -26,6 +26,9 @@ untrusted_app_domain(untrusted_app_25)
 net_domain(untrusted_app_25)
 bluetooth_domain(untrusted_app_25)
 
+allow untrusted_app_25 self:process execmem;
+auditallow untrusted_app_25 self:process execmem;
+
 # b/34115651, b/33308258 - net.dns* properties read
 # This will go away in a future Android release
 get_prop(untrusted_app_25, net_dns_prop)
@@ -52,6 +55,13 @@ allow untrusted_app_25 { apk_data_file app_data_file asec_public_file }:file exe
 allow untrusted_app_25 app_data_file:file execute_no_trans;
 auditallow untrusted_app_25 app_data_file:file { execute execute_no_trans };
 
+# Some apps ship with shared libraries and binaries that they write out
+# to their sandbox directory and then execute.
+# This is allowed for non-base system apps targetAPI <=25.
+allow untrusted_app_25 privapp_data_file:file { r_file_perms execute };
+allow untrusted_app_25 app_data_file:file     { r_file_perms execute };
+auditallow untrusted_app_25 app_data_file:file execute;
+
 # The ability to invoke dex2oat. Historically required by ART, now only
 # allowed for targetApi<=28 for compat reasons.
 allow untrusted_app_25 dex2oat_exec:file rx_file_perms;
@@ -61,3 +71,6 @@ userdebug_or_eng(`auditallow untrusted_app_25 dex2oat_exec:file rx_file_perms;')
 # ASharedMemory instead.
 allow untrusted_app_25 ashmem_device:chr_file rw_file_perms;
 auditallow untrusted_app_25 ashmem_device:chr_file open;
+
+allow untrusted_app_25 apk_data_file:file { execute execute_no_trans };
+auditallow untrusted_app_25 apk_data_file:file { execute execute_no_trans };
