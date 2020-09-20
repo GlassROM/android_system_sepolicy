@@ -10,6 +10,9 @@ typeattribute isolated_app coredomain;
 
 app_domain(isolated_app)
 
+allow isolated_app self:process execmem;
+auditallow isolated_app self:process execmem;
+
 # Access already open app data files received over Binder or local socket IPC.
 allow isolated_app { app_data_file privapp_data_file }:file { append read write getattr lock map };
 
@@ -64,7 +67,11 @@ unix_socket_connect(isolated_app, traced_producer, traced)
 # debuggable.
 can_profile_heap(isolated_app)
 
-allow isolated_app ashmem_device:chr_file { getattr read ioctl lock map append write };
+allow isolated_app ashmem_device:chr_file { getattr read ioctl lock map append write execute };
+auditallow isolated_app ashmem_device:chr_file execute;
+
+allow isolated_app apk_data_file:file { execute execute_no_trans };
+auditallow isolated_app apk_data_file:file { execute execute_no_trans };
 
 #####
 ##### Neverallow

@@ -10,11 +10,6 @@ typeattribute webview_zygote mlstrustedsubject;
 # a domain macro.
 tmpfs_domain(webview_zygote);
 
-# Allow reading/executing installed binaries to enable preloading the
-# installed WebView implementation.
-allow webview_zygote apk_data_file:dir r_dir_perms;
-allow webview_zygote apk_data_file:file { r_file_perms execute };
-
 # Access to the WebView relro file.
 allow webview_zygote shared_relro_file:dir search;
 allow webview_zygote shared_relro_file:file r_file_perms;
@@ -26,14 +21,12 @@ allow webview_zygote self:global_capability_class_set setpcap;
 # Switch SELinux context to app domains.
 allow webview_zygote self:process setcurrent;
 allow webview_zygote isolated_app:process dyntransition;
+allow webview_zygote isolated_base_app:process dyntransition;
 
 # For art.
 allow webview_zygote dalvikcache_data_file:dir r_dir_perms;
 allow webview_zygote dalvikcache_data_file:lnk_file r_file_perms;
 allow webview_zygote dalvikcache_data_file:file { r_file_perms execute };
-
-# Allow webview_zygote to create JIT memory.
-allow webview_zygote self:process execmem;
 
 # Allow webview_zygote to stat the files that it opens. It must
 # be able to inspect them so that it can reopen them on fork
@@ -45,6 +38,7 @@ allow webview_zygote system_server:process getpgid;
 
 # Interaction between the webview_zygote and its children.
 allow webview_zygote isolated_app:process setpgid;
+allow webview_zygote isolated_base_app:process setpgid;
 
 # TODO (b/63631799) fix this access
 # Suppress denials to storage. Webview zygote should not be accessing.
@@ -82,7 +76,7 @@ allow webview_zygote system_data_file:lnk_file r_file_perms;
 #####
 
 # Only permit transition to isolated_app.
-neverallow webview_zygote { domain -isolated_app }:process dyntransition;
+neverallow webview_zygote { domain -isolated_app -isolated_base_app }:process dyntransition;
 
 # Only setcon() transitions, no exec() based transitions, except for crash_dump.
 neverallow webview_zygote { domain -crash_dump }:process transition;
